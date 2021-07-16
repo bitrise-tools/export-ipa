@@ -10,7 +10,6 @@ import (
 	"strings"
 
 	"github.com/bitrise-io/go-utils/command"
-	"github.com/bitrise-io/go-xcode/models"
 	version "github.com/hashicorp/go-version"
 )
 
@@ -282,9 +281,9 @@ func getXcodeDeveloperDirPath() (string, error) {
 }
 
 // BootSimulator ...
-func BootSimulator(simulator InfoModel, xcodebuildVersion models.XcodebuildVersionModel) error {
+func BootSimulator(simulatorID string, xcodebuildMajorVersion int) error {
 	simulatorApp := "Simulator"
-	if xcodebuildVersion.MajorVersion == 6 {
+	if xcodebuildMajorVersion == 6 {
 		simulatorApp = "iOS Simulator"
 	}
 	xcodeDevDirPth, err := getXcodeDeveloperDirPath()
@@ -293,13 +292,13 @@ func BootSimulator(simulator InfoModel, xcodebuildVersion models.XcodebuildVersi
 	}
 	simulatorAppFullPath := filepath.Join(xcodeDevDirPth, "Applications", simulatorApp+".app")
 
-	openCmd := command.New("open", simulatorAppFullPath, "--args", "-CurrentDeviceUDID", simulator.ID)
+	openCmd := command.New("open", simulatorAppFullPath, "--args", "-CurrentDeviceUDID", simulatorID)
 
 	log.Printf("$ %s", openCmd.PrintableCommandArgs())
 
 	outStr, err := openCmd.RunAndReturnTrimmedCombinedOutput()
 	if err != nil {
-		return fmt.Errorf("failed to start simulators (%s), output: %s, error: %s", simulator.ID, outStr, err)
+		return fmt.Errorf("failed to start simulators (%s), output: %s, error: %s", simulatorID, outStr, err)
 	}
 
 	return nil
